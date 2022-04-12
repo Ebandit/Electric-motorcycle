@@ -65,13 +65,15 @@ void indicatorLeft()
 
       
       // fade everything out
-      for (int i = 61; i < 66; i++)
-      {
+      //for (int i = 61; i < 66; i++)
+      fadeToBlackBy((&leds[61]), 5, fade);
+      fadeToBlackBy((&leds1[6]), 5, fade);
+     /* {
         leds[i].fadeToBlackBy(fade);
         leds1[iB].fadeToBlackBy(fade);
         iB++;
-      }
-      iB=6;
+      }*/
+      //iB=6;
        // let's set an led value
       leds[indPixL] = CHSV(30, 255, 255);
       leds1[indPixL1] = CHSV(23, 255, 255); 
@@ -99,7 +101,7 @@ void indicatorLeft()
       
     }
   }
-  if (digitalRead(leftInd) == HIGH)
+  if (digitalRead(leftInd) == HIGH && poliisi == false)
   {
     turnsignalL = false;
     //fill_solid((&leds[17]), 5, CHSV(255, 255, 80));
@@ -123,13 +125,16 @@ void indicatorRight()
     {
       int blinkerCanState = 0;
 
-      for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
+    /*  for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
       {
         leds[i].fadeToBlackBy(fade);
          leds1[iA].fadeToBlackBy(fade);
          iA++;
       }
-        iA=1;
+        iA=1; */
+
+       fadeToBlackBy((&leds[45]), 5, fade);
+      fadeToBlackBy((&leds1[1]), 5, fade);
         
         
       // let's set an led value      
@@ -160,7 +165,7 @@ void indicatorRight()
     }
     
   }
-  if (digitalRead(rightInd) == HIGH)
+  if (digitalRead(rightInd) == HIGH && poliisi == false)
   {
     turnsignalR = false;
     fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));
@@ -185,7 +190,7 @@ void Blinkers()
     blinkers = true;
     EVERY_N_MILLISECONDS(interval)
     {
-      for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
+    /*  for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
       {
         leds[i].fadeToBlackBy(fade);
         leds1[iA].fadeToBlackBy(fade);
@@ -197,7 +202,12 @@ void Blinkers()
       }
         iA=1;
         iB=6;
-        iC=61;
+        iC=61; */
+
+      fadeToBlackBy((&leds[61]), 5, fade);
+      fadeToBlackBy((&leds1[1]), 5, fade);
+      fadeToBlackBy((&leds[45]), 5, fade);
+      fadeToBlackBy((&leds1[1]), 5, fade);
         
       // let's set an led value      
       leds[indPixR] = CHSV(30, 255, 255);
@@ -438,7 +448,7 @@ void epilepsy()
 {
   if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW)
   {
-
+    poliisi=true;
     EVERY_N_MILLISECONDS(interval)
     {
 
@@ -476,6 +486,11 @@ void epilepsy()
       }
     }
   }
+  else
+  {
+    poliisi=false;
+  }
+  
 }
 //------------------------------------------SETUP-----------------------------------------------//
 void setup()
@@ -602,12 +617,12 @@ void sendCan() {
 void loop()
 {
 
-  //indicatorLeft();
-  //indicatorRight();
-  //Blinkers();
-  //Breaklights();
-  //horny();
-  //frontlights();
+  indicatorLeft();
+  indicatorRight();
+  Blinkers();
+  Breaklights();
+  horny();
+  frontlights();
   //police();
   epilepsy();
 }
