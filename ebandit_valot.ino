@@ -43,6 +43,7 @@ unsigned long previousMillis = 0;
 boolean turnsignalL = false;
 boolean turnsignalR = false;
 boolean blinkers = false;
+boolean poliisi = false;
 
 int iA = 0;
 int iB = 6;
@@ -55,7 +56,7 @@ int interlockCanState = 0;
 
 void indicatorLeft()
 {
-  if (digitalRead(leftInd) == LOW && digitalRead(rightInd) == HIGH && blinkers == false)
+  if (digitalRead(leftInd) == LOW && digitalRead(rightInd) == HIGH && blinkers == false && poliisi == false)
   {  turnsignalL = true;
      
     EVERY_N_MILLISECONDS(interval)
@@ -72,7 +73,7 @@ void indicatorLeft()
       }
       iB=6;
        // let's set an led value
-      leds[indPixL] = CHSV(23, 255, 255);
+      leds[indPixL] = CHSV(30, 255, 255);
       leds1[indPixL1] = CHSV(23, 255, 255); 
        //leds[indPixL + 1] = CHSV(23, 255, 255);
       //leds[indPixL + 2] = CHSV(23, 255, 255);
@@ -115,7 +116,7 @@ void indicatorRight()
 {
   
 
-  if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == HIGH && blinkers == false)
+  if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == HIGH && blinkers == false && poliisi == false)
   { 
     turnsignalR = true;
     EVERY_N_MILLISECONDS(interval)
@@ -132,7 +133,7 @@ void indicatorRight()
         
         
       // let's set an led value      
-      leds[indPixR] = CHSV(23, 255, 255);
+      leds[indPixR] = CHSV(30, 255, 255);
       leds1[indPixR1] = CHSV(23, 255, 255);     
       //leds[indPixR - 1] = CHSV(23, 255, 255);
       //leds[indPixR - 2] = CHSV(23, 255, 255);
@@ -177,7 +178,7 @@ void indicatorRight()
 //------------------------------------------Blinkers-----------------------------------------------//
 void Blinkers() 
 {
- if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == LOW) // && turnsignalR == false && turnsignalL == false
+ if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == LOW && poliisi == false) // && turnsignalR == false && turnsignalL == false
   { 
     turnsignalR=false;
     turnsignalL=false;
@@ -199,9 +200,9 @@ void Blinkers()
         iC=61;
         
       // let's set an led value      
-      leds[indPixR] = CHSV(23, 255, 255);
+      leds[indPixR] = CHSV(30, 255, 255);
       leds1[indPixR1] = CHSV(23, 255, 255);        
-      leds[indPixL] = CHSV(23, 255, 255);
+      leds[indPixL] = CHSV(30, 255, 255);
       leds1[indPixL1] = CHSV(23, 255, 255);    
       FastLED.show();
       indPixR--;
@@ -218,7 +219,7 @@ void Blinkers()
     }
         fill_solid((&leds[44]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));
-        fill_solid((&leds[66]), 5, CHSV(0, 0, 0));
+        fill_solid((&leds[61]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));
         FastLED.show();
         indPixR = 49;
@@ -254,7 +255,7 @@ void Blinkers()
 //------------------------------------------break lights-----------------------------------------------//
 void Breaklights()
 {
-  if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == false && blinkers == false)
+  if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == false && blinkers == false && poliisi == false)
   {
     fill_solid((&leds[45]), 21, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
@@ -321,34 +322,35 @@ void Breaklights()
 //------------------------------------------front lights-----------------------------------------------//
 void frontlights()
 {
-  if (digitalRead(hBeam) == LOW) //digitalRead(bFlash) != 
+  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == HIGH && poliisi == false) //digitalRead(bFlash) != 
   {
     digitalWrite(lBeamOut, HIGH);
     digitalWrite(hBeamOut, LOW);
     ////Serial.println("Pitkät");
   }
-  else
+  if (digitalRead(hBeam) == HIGH && digitalRead(lBeam) == LOW)
   {
     digitalWrite(hBeamOut, HIGH);
+    digitalWrite(lBeamOut, LOW);
   }
-
-  if (digitalRead(lBeam) == LOW)
+/*
+  if (digitalRead(lBeam) == LOW && digitalRead(hBeam) == HIGH)
   {
     ////Serial.println("lyhyet");
     digitalWrite(lBeamOut, LOW);
     digitalWrite(hBeamOut, HIGH);
   }
-  else
+  if (digitalRead(lBeam) == HIGH && digitalRead(hBeam) == LOW)
   {
     digitalWrite(lBeamOut, HIGH);
-  }
+  } */
 
-  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW) //digitalRead(bFlash) != 
+ /* if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW) //digitalRead(bFlash) != 
   {
     digitalWrite(lBeamOut, HIGH);
     digitalWrite(hBeamOut, LOW);
     ////Serial.println("Pitkät");
-  }
+  }*/
 
 }
 //------------------------------------------horny-----------------------------------------------//
@@ -370,9 +372,9 @@ void horny()
 
 void police()
 {
-  if (digitalRead(horn) == LOW)
+  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW)
   {
-
+    poliisi = true;
     EVERY_N_MILLISECONDS(interval)
     {
       for (int i = 0; i < 8; i++)
@@ -419,13 +421,22 @@ void police()
         }
       }
     }
+    EVERY_N_MILLISECONDS(1000)
+    digitalWrite(hBeamOut, LOW);
+    
+    EVERY_N_MILLISECONDS(1000)
+    digitalWrite(hBeamOut, HIGH);
+  }
+  if (digitalRead(hBeam) == HIGH && digitalRead(lBeam) == HIGH)
+  {
+  poliisi=false;
   }
 }
 
 ////////---------------------------------epilsiasa----------------------------///
 void epilepsy()
 {
-  if (digitalRead(horn) == LOW)
+  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW)
   {
 
     EVERY_N_MILLISECONDS(interval)
@@ -459,6 +470,8 @@ void epilepsy()
             // fade everything out
             leds.fadeToBlackBy(20);
           }
+          fill_solid((&leds[0]), 110, CHSV(0, 0, 0));
+          FastLED.show();
         
       }
     }
@@ -492,7 +505,42 @@ digitalWrite(can5vOutput, HIGH);
 
 
 //---------------------------NEOPIXEL setup------------------------------------//
-    //static uint8_t hue;
+    
+//-----------------------etuvalot startup-----------------------------//
+
+  /*  for (int i = 0; i < NUM_LEDS1 / 2; i++)
+    {
+      
+      // fade everything out
+      leds1.fadeToBlackBy(40);
+
+      // let's set an led value
+      leds1[i] = CHSV(23, 255, 160);
+
+      // now, let's first 20 leds to the top 20 leds,
+      leds1(NUM_LEDS1 / 2, NUM_LEDS1 - 1) = leds1(NUM_LEDS1 / 2 - 1, 0);  
+      FastLED.delay(33);
+    }
+
+    for (int i = NUM_LEDS1; i > NUM_LEDS1 / 2; i++)
+    {
+      // fade everything out
+      leds1.fadeToBlackBy(40);
+      FastLED.delay(10);
+    }
+  for (int i = NUM_LEDS1/2; i > 0; i--)  //tässä for loopissa pikku bugi (int i = 65; i > 44; i--)  (int i = NUM_LEDS/2; i > 0; i--)
+    {
+      // let's set an led value
+      leds1[i] = CHSV(0, 0, 0); 
+      
+      // now, let's first 20 leds to the top 20 leds,
+       leds1(NUM_LEDS1 / 2, NUM_LEDS1 - 1) = leds1(NUM_LEDS1 / 2 - 1, 0);     // leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);   leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
+      FastLED.delay(20);
+    }
+    //FastLED.show();*/
+
+//-----------------------takavalot startup-----------------------------//
+//static uint8_t hue;
     for (int i = 0; i < NUM_LEDS / 2; i++)
     {
       
@@ -553,17 +601,13 @@ void sendCan() {
 */
 void loop()
 {
-  //Serial.print("turnsignalL: ");
-  //Serial.print(turnsignalL);
-  //Serial.print("      " );
-  //Serial.print("turnsignalR: ");
-  //Serial.println(turnsignalR);
-  indicatorLeft();
-  indicatorRight();
-  Blinkers();
-  Breaklights();
-  horny();
-  frontlights();
- //police();
-  //epilepsy();
+
+  //indicatorLeft();
+  //indicatorRight();
+  //Blinkers();
+  //Breaklights();
+  //horny();
+  //frontlights();
+  //police();
+  epilepsy();
 }
