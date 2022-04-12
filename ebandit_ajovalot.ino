@@ -64,7 +64,7 @@ void indicatorLeft()
 
       
       // fade everything out
-      for (int i = 17; i < 22; i++)
+      for (int i = 61; i < 66; i++)
       {
         leds[i].fadeToBlackBy(fade);
         leds1[iB].fadeToBlackBy(fade);
@@ -80,7 +80,7 @@ void indicatorLeft()
       indPixL++;
       indPixL1++;
 
-      if (indPixL >= 22)
+      if (indPixL >= 66)
       
       {
             int blinkerCanState = 2;
@@ -90,7 +90,7 @@ void indicatorLeft()
            //FastLED.show();
            currentMillis = millis();
     }
-        fill_solid((&leds[17]), 5, CHSV(0, 0, 0));
+        fill_solid((&leds[61]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));
         indPixL = 17;
         indPixL1 = 6;
@@ -104,7 +104,7 @@ void indicatorLeft()
     //fill_solid((&leds[17]), 5, CHSV(255, 255, 80));
     fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));
     FastLED.show();
-    indPixL = 17;
+    indPixL = 61;
     indPixL1 = 6;
     int blinkerCanState = 2;
 
@@ -122,7 +122,7 @@ void indicatorRight()
     {
       int blinkerCanState = 0;
 
-      for (int i = 5; i > 0; i--)   //for (int i = 49; i > 44; i--)
+      for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
       {
         leds[i].fadeToBlackBy(fade);
          leds1[iA].fadeToBlackBy(fade);
@@ -139,7 +139,7 @@ void indicatorRight()
       FastLED.show();
       indPixR--;
       indPixR1++;
-      if (indPixR <= 0)
+      if (indPixR <= 49)
       {
         int blinkerCanState = 1;
 
@@ -149,10 +149,10 @@ void indicatorRight()
            //FastLED.show();
            currentMillis = millis();
     }
-        fill_solid((&leds[0]), 5, CHSV(0, 0, 0));
+        fill_solid((&leds[44]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));        
          FastLED.show();
-        indPixR = 5;
+        indPixR = 49;
         indPixR1 = 1;
       }
     
@@ -166,7 +166,7 @@ void indicatorRight()
     //fill_solid((&leds[0]), 6, CHSV(255, 255, 80));
     FastLED.show();
     indPixR1 = 1;
-    indPixR = 5;
+    indPixR = 49;
     int blinkerCanState = 0;
 
   }
@@ -184,7 +184,7 @@ void Blinkers()
     blinkers = true;
     EVERY_N_MILLISECONDS(interval)
     {
-      for (int i = 5; i > 0; i--)   //for (int i = 49; i > 44; i--)
+      for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
       {
         leds[i].fadeToBlackBy(fade);
         leds1[iA].fadeToBlackBy(fade);
@@ -196,7 +196,7 @@ void Blinkers()
       }
         iA=1;
         iB=6;
-        iC=17;
+        iC=61;
         
       // let's set an led value      
       leds[indPixR] = CHSV(23, 255, 255);
@@ -220,10 +220,10 @@ void Blinkers()
         fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));
         fill_solid((&leds[17]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));
-         FastLED.show();
-        indPixR = 5;
+        FastLED.show();
+        indPixR = 49;
         indPixR1 = 1;    
-        indPixL = 17;
+        indPixL = 61;
         indPixL1 = 6;
       }
     
@@ -256,47 +256,47 @@ void Breaklights()
 {
   if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == false && blinkers == false)
   {
-    fill_solid((&leds[0]), 22, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[44]), 22, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   
   if (digitalRead(breakLight) == HIGH && turnsignalR == false && turnsignalL == false && blinkers == false)
   {
-    fill_solid((&leds[0]), 22, CHSV(255, 255, 80));    //fill_solid((&leds[50]), 11, CHSV(255, 255, 80));
+    fill_solid((&leds[44]), 22, CHSV(255, 255, 80));    //fill_solid((&leds[50]), 11, CHSV(255, 255, 80));
     FastLED.show();
    
   }
   
    if (digitalRead(breakLight) == LOW && turnsignalR == true && turnsignalL == false && blinkers == false)
   {
-    fill_solid((&leds[6]), 17, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[49]), 17, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   if (digitalRead(breakLight) == HIGH && turnsignalR == true && turnsignalL == false && blinkers == false)
   {
-    fill_solid((&leds[6]), 17, CHSV(255, 255, 80));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[49]), 17, CHSV(255, 255, 80));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   
    if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == true && blinkers == false)
   {
-    fill_solid((&leds[0]), 17, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[44]), 17, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   if (digitalRead(horn) == HIGH && turnsignalR == false && turnsignalL == true && blinkers == false)
   {
-    fill_solid((&leds[0]), 17, CHSV(255, 255, 80));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[44]), 17, CHSV(255, 255, 80));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   
    if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == false && blinkers == true)
   {
-    fill_solid((&leds[6]), 11, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[49]), 11, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   if (digitalRead(breakLight) == HIGH && turnsignalR == false && turnsignalL == false && blinkers == true)
   {
-    fill_solid((&leds[6]), 11, CHSV(255, 255, 80));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
+    fill_solid((&leds[49]), 11, CHSV(255, 255, 80));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
   }
   
@@ -496,13 +496,13 @@ FastLED.show();
       FastLED.delay(10);
     }
 
-    for (int i = NUM_LEDS/2; i > 0; i--)  //tässä for loopissa pikku bugi (int i = 65; i > 44; i--)
+    for (int i = 65; i > 44; i--)  //tässä for loopissa pikku bugi (int i = 65; i > 44; i--)  (int i = NUM_LEDS/2; i > 0; i--)
     {
       // let's set an led value
       leds[i] = CHSV(255, 255, 80); 
       
       // now, let's first 20 leds to the top 20 leds,
-       leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);     // leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);
+       leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);     // leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);   leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
       FastLED.delay(20);
     }
     fill_solid((&leds[65]), 1, CHSV(255, 255, 80));
