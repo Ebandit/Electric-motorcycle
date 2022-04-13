@@ -1,16 +1,22 @@
-#include <FastLED.h>
 
+#include <FastLED.h>
+#include <Canbus.h>
+#include <defaults.h>
+#include <global.h>
+#include <mcp2515.h>
+#include <mcp2515_defs.h>
 
 #define DATA_PIN 6
 #define DATA_PIN1 5
 #define NUM_LEDS 110   //tutustu miksi pitää olla 22 vaikka ledejä on 21??!?!?!?!???
 #define NUM_LEDS1 11
+
 CRGBArray<NUM_LEDS> leds;
 CRGBArray<NUM_LEDS1> leds1;
+
 /********************************INPUTS********************************************/
 #define lBeam A3      //low beam lights input (+yellow / white gnd)
 #define hBeam A4      //high beam lights input (+red / white gnd)
-                      //#define bFlash 3     //high beam flashing input (+orange / white gnd)
 #define horn A5       //horn input (+violet / blue gnd)
 #define leftInd A0    //left indicator input (+black / brown gnd)
 #define rightInd A1   //right indicator input (+green / brown gnd)
@@ -44,6 +50,7 @@ boolean turnsignalL = false;
 boolean turnsignalR = false;
 boolean blinkers = false;
 boolean poliisi = false;
+boolean epilepsia = false;
 
 int iA = 0;
 int iB = 6;
@@ -51,48 +58,40 @@ int iC = 61;
 
 int headlightCanState = 0;
 int blinkerCanState = 0;
-int interlockCanState = 0;
+//int interlockCanState = 0;
+int ledCanState = 0;
 //-----------------------------------------Left Indicator-----------------------------------------------//
 
 void indicatorLeft()
 {
-  if (digitalRead(leftInd) == LOW && digitalRead(rightInd) == HIGH && blinkers == false && poliisi == false)
-  {  turnsignalL = true;
-     
+  if (digitalRead(leftInd) == LOW && digitalRead(rightInd) == HIGH && blinkers == false)  // && poliisi == false
+  {  
+    turnsignalL = true;
+  
     EVERY_N_MILLISECONDS(interval)
     {
-      int blinkerCanState = 0;
 
-      
       // fade everything out
-      //for (int i = 61; i < 66; i++)
       fadeToBlackBy((&leds[61]), 5, fade);
       fadeToBlackBy((&leds1[6]), 5, fade);
-     /* {
-        leds[i].fadeToBlackBy(fade);
-        leds1[iB].fadeToBlackBy(fade);
-        iB++;
-      }*/
-      //iB=6;
+
        // let's set an led value
       leds[indPixL] = CHSV(30, 255, 255);
       leds1[indPixL1] = CHSV(23, 255, 255); 
-       //leds[indPixL + 1] = CHSV(23, 255, 255);
-      //leds[indPixL + 2] = CHSV(23, 255, 255);
       FastLED.show();
       indPixL++;
       indPixL1++;
 
       if (indPixL >= 66)
       
-      {
-            int blinkerCanState = 2;
-            //delay(delayTurnLedOff);       
-            currentMillis = previousMillis = millis();
-             while(previousMillis + delayTurnLedOff >= currentMillis){
-           //FastLED.show();
+      {                
+        
+           //---delay---//
+           currentMillis = previousMillis = millis();
+           while(previousMillis + delayTurnLedOff >= currentMillis){
            currentMillis = millis();
     }
+    
         fill_solid((&leds[61]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));
         indPixL = 61;
@@ -101,15 +100,13 @@ void indicatorLeft()
       
     }
   }
-  if (digitalRead(leftInd) == HIGH && poliisi == false)
+  if (digitalRead(leftInd) == HIGH) // || blinkers == true || turnsignalR == true)
   {
     turnsignalL = false;
-    //fill_solid((&leds[17]), 5, CHSV(255, 255, 80));
     fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));
     FastLED.show();
     indPixL = 61;
     indPixL1 = 6;
-    int blinkerCanState = 2;
 
   }
 }
@@ -118,20 +115,14 @@ void indicatorRight()
 {
   
 
-  if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == HIGH && blinkers == false && poliisi == false)
+  if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == HIGH && blinkers == false)  // && poliisi == false
   { 
+    
     turnsignalR = true;
+    
     EVERY_N_MILLISECONDS(interval)
     {
-      int blinkerCanState = 0;
 
-    /*  for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
-      {
-        leds[i].fadeToBlackBy(fade);
-         leds1[iA].fadeToBlackBy(fade);
-         iA++;
-      }
-        iA=1; */
 
        fadeToBlackBy((&leds[45]), 5, fade);
       fadeToBlackBy((&leds1[1]), 5, fade);
@@ -140,24 +131,19 @@ void indicatorRight()
       // let's set an led value      
       leds[indPixR] = CHSV(30, 255, 255);
       leds1[indPixR1] = CHSV(23, 255, 255);     
-      //leds[indPixR - 1] = CHSV(23, 255, 255);
-      //leds[indPixR - 2] = CHSV(23, 255, 255);
       FastLED.show();
       indPixR--;
       indPixR1++;
       if (indPixR <= 44)
       {
-        int blinkerCanState = 1;
-
-                    //delay(delayTurnLedOff);       
-            currentMillis = previousMillis = millis();
-             while(previousMillis + delayTurnLedOff >= currentMillis){
-           //FastLED.show();
+           //---delay---//
+           currentMillis = previousMillis = millis();
+           while(previousMillis + delayTurnLedOff >= currentMillis){
            currentMillis = millis();
     }
         fill_solid((&leds[44]), 5, CHSV(0, 0, 0));
         fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));        
-         FastLED.show();
+        FastLED.show();
         indPixR = 49;
         indPixR1 = 1;
       }
@@ -165,15 +151,13 @@ void indicatorRight()
     }
     
   }
-  if (digitalRead(rightInd) == HIGH && poliisi == false)
+  if (digitalRead(rightInd) == HIGH) //|| blinkers == true || turnsignalL == true)
   {
     turnsignalR = false;
     fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));
-    //fill_solid((&leds[0]), 6, CHSV(255, 255, 80));
     FastLED.show();
     indPixR1 = 1;
     indPixR = 49;
-    int blinkerCanState = 0;
 
   }
 
@@ -183,26 +167,15 @@ void indicatorRight()
 //------------------------------------------Blinkers-----------------------------------------------//
 void Blinkers() 
 {
- if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == LOW && poliisi == false) // && turnsignalR == false && turnsignalL == false
+ if (digitalRead(rightInd) == LOW && digitalRead(leftInd) == LOW) // && turnsignalR == false && turnsignalL == false  && poliisi == false
   { 
     turnsignalR=false;
     turnsignalL=false;
     blinkers = true;
+    
     EVERY_N_MILLISECONDS(interval)
     {
-    /*  for (int i = 49; i > 44; i--)   //for (int i = 49; i > 44; i--)
-      {
-        leds[i].fadeToBlackBy(fade);
-        leds1[iA].fadeToBlackBy(fade);
-        leds[iC].fadeToBlackBy(fade);
-        leds1[iB].fadeToBlackBy(fade);
-        iB++;
-        iA++;
-        iC++;
-      }
-        iA=1;
-        iB=6;
-        iC=61; */
+
 
       fadeToBlackBy((&leds[61]), 5, fade);
       fadeToBlackBy((&leds1[1]), 5, fade);
@@ -221,7 +194,8 @@ void Blinkers()
       indPixL1++;
       if (indPixR <= 44)
       {
-                    //delay(delayTurnLedOff);       
+        
+           //---delay---//       
             currentMillis = previousMillis = millis();
              while(previousMillis + delayTurnLedOff >= currentMillis){
            FastLED.show();
@@ -241,31 +215,19 @@ void Blinkers()
     }
     
   }
-  if ((digitalRead(rightInd) == HIGH && digitalRead(leftInd) == HIGH) || (digitalRead(rightInd) == LOW && digitalRead(leftInd) == HIGH) || (digitalRead(rightInd) == HIGH && digitalRead(leftInd) == LOW))
+  if (digitalRead(rightInd) == HIGH && digitalRead(leftInd) == HIGH)// || (digitalRead(rightInd) == LOW && digitalRead(leftInd) == HIGH) || (digitalRead(rightInd) == HIGH && digitalRead(leftInd) == LOW))
   {
     blinkers = false;
-    //fill_solid((&leds1[0]), 6, CHSV(0, 0, 0));
-    //fill_solid((&leds[0]), 6, CHSV(255, 255, 80));    
-    //fill_solid((&leds[17]), 6, CHSV(255, 255, 80));
-    //fill_solid((&leds1[6]), 6, CHSV(0, 0, 0));   
-    //FastLED.show();
-    //indPixR1 = 1;
-    //indPixR = 5;    
-    //indPixL = 17;
-    //indPixL1 = 6;
+
   }
 
-  
-  
 }
-
-
   
 
 //------------------------------------------break lights-----------------------------------------------//
 void Breaklights()
 {
-  if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == false && blinkers == false && poliisi == false)
+  if (digitalRead(breakLight) == LOW && turnsignalR == false && turnsignalL == false && blinkers == false) // && poliisi == false
   {
     fill_solid((&leds[45]), 21, CHSV(255, 255, 255));     //fill_solid((&leds[50]), 11, CHSV(255, 255, 255));
     FastLED.show();
@@ -311,56 +273,30 @@ void Breaklights()
     FastLED.show();
   }
   
- /*  else
-   {
-      fill_solid((&leds[6]), 11, CHSV(255, 255, 80));    //fill_solid((&leds[50]), 11, CHSV(255, 255, 80));
-    FastLED.show();
-  } */
-  
-  /*if (digitalRead(leftInd) == LOW)
-  {  
-    
-    fill_solid((&leds[45]), 16, CHSV(255, 255, 80));
-    FastLED.show();
-  }
-    else {
-    fill_solid((&leds[45]), 21, CHSV(255, 255, 80));
-    FastLED.show();
-    }
-  */
 }
 //------------------------------------------front lights-----------------------------------------------//
 void frontlights()
 {
-  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == HIGH && poliisi == false) //digitalRead(bFlash) != 
+  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == HIGH) //digitalRead(bFlash) != && poliisi == false
   {
-    digitalWrite(lBeamOut, HIGH);
-    digitalWrite(hBeamOut, LOW);
-    ////Serial.println("Pitkät");
+    headlightCanState = 2;
+    digitalWrite(lBeamOut, LOW);
+    digitalWrite(hBeamOut, HIGH);
+    //////Serial.println("Pitkät");
   }
   if (digitalRead(hBeam) == HIGH && digitalRead(lBeam) == LOW)
   {
-    digitalWrite(hBeamOut, HIGH);
-    digitalWrite(lBeamOut, LOW);
-  }
-/*
-  if (digitalRead(lBeam) == LOW && digitalRead(hBeam) == HIGH)
-  {
-    ////Serial.println("lyhyet");
-    digitalWrite(lBeamOut, LOW);
-    digitalWrite(hBeamOut, HIGH);
-  }
-  if (digitalRead(lBeam) == HIGH && digitalRead(hBeam) == LOW)
-  {
-    digitalWrite(lBeamOut, HIGH);
-  } */
-
- /* if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW) //digitalRead(bFlash) != 
-  {
-    digitalWrite(lBeamOut, HIGH);
+    headlightCanState = 1;
     digitalWrite(hBeamOut, LOW);
-    ////Serial.println("Pitkät");
-  }*/
+    digitalWrite(lBeamOut, HIGH);
+  }
+//----pitkien väläytys---//
+  if (digitalRead(lBeam) == LOW && digitalRead(hBeam) == LOW)
+  {
+    headlightCanState = 2;
+    digitalWrite(lBeamOut, LOW);
+    digitalWrite(hBeamOut, HIGH);
+  }
 
 }
 //------------------------------------------horny-----------------------------------------------//
@@ -381,30 +317,52 @@ void horny()
 ////////---------------------------------POLLIISI ASIA-----------------------------///
 
 void police()
-{
-  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW)
+{ 
+ /*if (ledCanState == 1)
+  {
+    poliisi = true;
+for(int i = 0; i < NUM_LEDS; i++) {
+  uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
+
+  leds[i] = CRGB::Red;
+  leds1[ledsMapped] = CRGB::Orange;
+  FastLED.show();
+
+  // clear our current dot before we move on
+  leds[i] = CRGB::Black;
+  leds1[ledsMapped] = CRGB::Black;
+  delay(10);
+} */
+  
+  /*if (ledCanState == 1)
   {
     poliisi = true;
     EVERY_N_MILLISECONDS(interval)
     {
       for (int i = 0; i < 8; i++)
       {
+        uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
+        fill_solid(leds1, ledsMapped, CHSV(HUE_BLUE, 255, 255));
         fill_solid(leds, NUM_LEDS, CHSV(HUE_BLUE, 255, 255));
         FastLED.show();
         FastLED.delay(40);
         fill_solid(leds, NUM_LEDS, CHSV(255, 255, 0));
+        fill_solid(leds1, ledsMapped, CHSV(255, 255, 0));
         FastLED.show();
         FastLED.delay(40);
-      }
-
+      }}
+/*
       for (int i = 0; i < 3; i++)
       {
-
+        
         for (int i = 0; i < NUM_LEDS * random8(30); i++) //
         {
+          uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
           leds[random8(NUM_LEDS)] = CHSV(HUE_BLUE, 255, 255);
+          leds1[random8(ledsMapped)] = CHSV(HUE_BLUE, 255, 255);
           FastLED.show();
-          leds[random8(NUM_LEDS - 1)] = CHSV(HUE_RED, 255, 0);
+          leds[random8(NUM_LEDS - 1)] = CHSV(HUE_RED, 255, 0);         
+          leds1[random8(ledsMapped - 1)] = CHSV(HUE_RED, 255, 0);
           FastLED.show();
         }
 
@@ -413,42 +371,46 @@ void police()
 
           for (int i = 0; i < NUM_LEDS / 2; i++)
           {
+            uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
             // fade everything out
             leds.fadeToBlackBy(20);
-
+            //leds1.fadeToBlackBy(20);
             // let's set an led value
             leds[i] = CHSV(HUE_BLUE, 255, 255);
-
+            leds[ledsMapped] = CHSV(HUE_BLUE, 255, 255);
             // now, let's first 20 leds to the top 20 leds,
             leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
             FastLED.delay(5);
           }
           for (int i = NUM_LEDS; i > NUM_LEDS / 2; i--)
           {
+            uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
             // fade everything out
             leds.fadeToBlackBy(20);
           }
         }
-      }
+      } 
     }
-    EVERY_N_MILLISECONDS(1000)
+    /*EVERY_N_MILLISECONDS(1000)
     digitalWrite(hBeamOut, LOW);
     
     EVERY_N_MILLISECONDS(1000)
-    digitalWrite(hBeamOut, HIGH);
+    digitalWrite(hBeamOut, HIGH); 
   }
-  if (digitalRead(hBeam) == HIGH && digitalRead(lBeam) == HIGH)
+  if (ledCanState != 1)
   {
-  poliisi=false;
-  }
+    poliisi=false;
+    FastLED.clear();
+    FastLED.show();
+  }*/
 }
 
 ////////---------------------------------epilsiasa----------------------------///
 void epilepsy()
 {
-  if (digitalRead(hBeam) == LOW && digitalRead(lBeam) == LOW)
+ /* if (ledCanState == 2)
   {
-    poliisi=true;
+    epilepsia=true;
     EVERY_N_MILLISECONDS(interval)
     {
 
@@ -486,20 +448,22 @@ void epilepsy()
       }
     }
   }
-  else
+  if (ledCanState != 2)
   {
-    poliisi=false;
+    epilepsia=false;
+    FastLED.clear();
+    FastLED.show();
   }
-  
+  */
 }
 //------------------------------------------SETUP-----------------------------------------------//
 void setup()
 {
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, DATA_PIN1>(leds1, NUM_LEDS1);
-  /*fill_solid((&leds[45]), 22, CHSV(255, 255, 80));
-FastLED.show();
-*/
+  FastLED.clear();
+  FastLED.show();
+
   for (int i = 0; i < numOfInputs; i++)
   {
     pinMode(inputPins[i], INPUT_PULLUP);
@@ -509,15 +473,22 @@ FastLED.show();
   pinMode(hBeamOut, OUTPUT);
   pinMode(hornOut, OUTPUT);
   pinMode(can5vOutput, OUTPUT);
-  ////Serial.begin(9600);
+  Serial.begin(9600);
 
-  digitalWrite(lBeamOut, HIGH);
-  digitalWrite(hBeamOut, HIGH);
+  digitalWrite(lBeamOut, LOW);
+  digitalWrite(hBeamOut, LOW);
 
 //---------------------------rasberry CAN-väylän avaus------------------------------------//
 delay(1000);
 digitalWrite(can5vOutput, HIGH);
 
+  
+if(Canbus.init(CANSPEED_250))  //Initialise MCP2515 CAN controller at the specified speed
+  //Serial.println("CAN Init ok");
+//else
+  //Serial.println("Can't init CAN");
+    
+  delay(200);
 
 //---------------------------NEOPIXEL setup------------------------------------//
     
@@ -528,15 +499,12 @@ digitalWrite(can5vOutput, HIGH);
       
       // fade everything out
       leds1.fadeToBlackBy(40);
-
       // let's set an led value
       leds1[i] = CHSV(23, 255, 160);
-
       // now, let's first 20 leds to the top 20 leds,
       leds1(NUM_LEDS1 / 2, NUM_LEDS1 - 1) = leds1(NUM_LEDS1 / 2 - 1, 0);  
       FastLED.delay(33);
     }
-
     for (int i = NUM_LEDS1; i > NUM_LEDS1 / 2; i++)
     {
       // fade everything out
@@ -553,22 +521,22 @@ digitalWrite(can5vOutput, HIGH);
       FastLED.delay(20);
     }
     //FastLED.show();*/
-
+  
 //-----------------------takavalot startup-----------------------------//
 //static uint8_t hue;
     for (int i = 0; i < NUM_LEDS / 2; i++)
+
     {
-      
       // fade everything out
       leds.fadeToBlackBy(40);
 
       // let's set an led value
       leds[i] = CHSV(255, 255, 160);
-
       // now, let's first 20 leds to the top 20 leds,
-      leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);  
+      leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
       FastLED.delay(20);
     }
+    
 
     for (int i = NUM_LEDS; i > NUM_LEDS / 2; i--)
     {
@@ -576,7 +544,7 @@ digitalWrite(can5vOutput, HIGH);
       leds.fadeToBlackBy(40);
       FastLED.delay(10);
     }
-
+    
     for (int i = 65; i > 44; i--)  //tässä for loopissa pikku bugi (int i = 65; i > 44; i--)  (int i = NUM_LEDS/2; i > 0; i--)
     {
       // let's set an led value
@@ -586,23 +554,21 @@ digitalWrite(can5vOutput, HIGH);
        leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);     // leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);   leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
       FastLED.delay(20);
     }
-    fill_solid((&leds[65]), 1, CHSV(255, 255, 80));
+    fill_solid((&leds[65]), 1, CHSV(255, 255, 80));    
     FastLED.show();
 
 
 
 }
-/*
+
 void sendCan() {
-
       tCAN message;
-
       message.id = 0x608; //formatted in HEX
       message.header.rtr = 0;
       message.header.length = 8; //formatted in DEC
       message.data[0] = headlightCanState;
       message.data[1] = blinkerCanState;
-      message.data[2] = interlockCanState;
+      //message.data[2] = interlockCanState;
       message.data[3] = 0x0; //formatted in HEX
       message.data[4] = 0x0;
       message.data[5] = 0x0;
@@ -613,16 +579,64 @@ void sendCan() {
       mcp2515_send_message(&message);
       delay(40);
 }
-*/
+
+void readCan() {
+
+   tCAN message;
+ if (mcp2515_check_message()) 
+ {
+    if (mcp2515_get_message(&message)) 
+  {
+        if(message.id == 0x651)  //uncomment when you want to filter
+             {
+               
+               for(int i=0;i<message.header.length;i++) 
+                {  
+                  ledCanState = message.data[0];
+                }
+                                 Serial.print(ledCanState);
+             }
+           }}
+    }
+
 void loop()
 {
 
+  sendCan();
+  readCan();
+  police();
+  epilepsy();
+  
+
+  if (poliisi && epilepsia == false)
+  {
   indicatorLeft();
   indicatorRight();
   Blinkers();
   Breaklights();
   horny();
   frontlights();
-  //police();
-  epilepsy();
+  }
+  if (poliisi || epilepsia == true)
+{
+  
+  }    
+//-----vilkkujen CAN tiedot----//
+
+  if (turnsignalL == true)
+  {
+    
+    blinkerCanState = 2;
+    
+    }
+
+  if (turnsignalR == true)
+  {
+    blinkerCanState = 1;
+    
+    }
+    if (turnsignalR == false && turnsignalL == false)
+    {
+    blinkerCanState = 0;
+    }
 }
