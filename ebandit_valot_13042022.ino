@@ -317,30 +317,52 @@ void horny()
 ////////---------------------------------POLLIISI ASIA-----------------------------///
 
 void police()
-{
-  if (ledCanState == 1)
+{ 
+ /*if (ledCanState == 1)
+  {
+    poliisi = true;
+for(int i = 0; i < NUM_LEDS; i++) {
+  uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
+
+  leds[i] = CRGB::Red;
+  leds1[ledsMapped] = CRGB::Orange;
+  FastLED.show();
+
+  // clear our current dot before we move on
+  leds[i] = CRGB::Black;
+  leds1[ledsMapped] = CRGB::Black;
+  delay(10);
+} */
+  
+  /*if (ledCanState == 1)
   {
     poliisi = true;
     EVERY_N_MILLISECONDS(interval)
     {
       for (int i = 0; i < 8; i++)
       {
+        uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
+        fill_solid(leds1, ledsMapped, CHSV(HUE_BLUE, 255, 255));
         fill_solid(leds, NUM_LEDS, CHSV(HUE_BLUE, 255, 255));
         FastLED.show();
         FastLED.delay(40);
         fill_solid(leds, NUM_LEDS, CHSV(255, 255, 0));
+        fill_solid(leds1, ledsMapped, CHSV(255, 255, 0));
         FastLED.show();
         FastLED.delay(40);
-      }
-
+      }}
+/*
       for (int i = 0; i < 3; i++)
       {
-
+        
         for (int i = 0; i < NUM_LEDS * random8(30); i++) //
         {
+          uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
           leds[random8(NUM_LEDS)] = CHSV(HUE_BLUE, 255, 255);
+          leds1[random8(ledsMapped)] = CHSV(HUE_BLUE, 255, 255);
           FastLED.show();
-          leds[random8(NUM_LEDS - 1)] = CHSV(HUE_RED, 255, 0);
+          leds[random8(NUM_LEDS - 1)] = CHSV(HUE_RED, 255, 0);         
+          leds1[random8(ledsMapped - 1)] = CHSV(HUE_RED, 255, 0);
           FastLED.show();
         }
 
@@ -349,40 +371,44 @@ void police()
 
           for (int i = 0; i < NUM_LEDS / 2; i++)
           {
+            uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
             // fade everything out
             leds.fadeToBlackBy(20);
-
+            //leds1.fadeToBlackBy(20);
             // let's set an led value
             leds[i] = CHSV(HUE_BLUE, 255, 255);
-
+            leds[ledsMapped] = CHSV(HUE_BLUE, 255, 255);
             // now, let's first 20 leds to the top 20 leds,
             leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
             FastLED.delay(5);
           }
           for (int i = NUM_LEDS; i > NUM_LEDS / 2; i--)
           {
+            uint8_t ledsMapped = map(i, 0, NUM_LEDS, 0, NUM_LEDS1);
             // fade everything out
             leds.fadeToBlackBy(20);
           }
         }
-      }
+      } 
     }
     /*EVERY_N_MILLISECONDS(1000)
     digitalWrite(hBeamOut, LOW);
     
     EVERY_N_MILLISECONDS(1000)
-    digitalWrite(hBeamOut, HIGH);*/
+    digitalWrite(hBeamOut, HIGH); 
   }
   if (ledCanState != 1)
   {
-  poliisi=false;
-  }
+    poliisi=false;
+    FastLED.clear();
+    FastLED.show();
+  }*/
 }
 
 ////////---------------------------------epilsiasa----------------------------///
 void epilepsy()
 {
-  if (ledCanState == 2)
+ /* if (ledCanState == 2)
   {
     epilepsia=true;
     EVERY_N_MILLISECONDS(interval)
@@ -425,8 +451,10 @@ void epilepsy()
   if (ledCanState != 2)
   {
     epilepsia=false;
+    FastLED.clear();
+    FastLED.show();
   }
-  
+  */
 }
 //------------------------------------------SETUP-----------------------------------------------//
 void setup()
@@ -445,7 +473,7 @@ void setup()
   pinMode(hBeamOut, OUTPUT);
   pinMode(hornOut, OUTPUT);
   pinMode(can5vOutput, OUTPUT);
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
   digitalWrite(lBeamOut, LOW);
   digitalWrite(hBeamOut, LOW);
@@ -499,43 +527,33 @@ if(Canbus.init(CANSPEED_250))  //Initialise MCP2515 CAN controller at the specif
     for (int i = 0; i < NUM_LEDS / 2; i++)
 
     {
-      //iA++;
       // fade everything out
       leds.fadeToBlackBy(40);
-      //leds1.fadeToBlackBy(40);
 
       // let's set an led value
       leds[i] = CHSV(255, 255, 160);
-      //leds1[iA] = CHSV(23, 255, 160);
       // now, let's first 20 leds to the top 20 leds,
       leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
-      //leds1(6, 10) = leds1(5, 0);
       FastLED.delay(20);
     }
-    //iA=0;
+    
 
     for (int i = NUM_LEDS; i > NUM_LEDS / 2; i--)
     {
-      //iA++;
       // fade everything out
       leds.fadeToBlackBy(40);
-      //leds1.fadeToBlackBy(40);
       FastLED.delay(10);
     }
-    //iA=0;
+    
     for (int i = 65; i > 44; i--)  //tässä for loopissa pikku bugi (int i = 65; i > 44; i--)  (int i = NUM_LEDS/2; i > 0; i--)
     {
-     // iA--;
       // let's set an led value
-      leds[i] = CHSV(255, 255, 80);
-      //leds1[iA] = CHSV(23, 255, 160); 
+      leds[i] = CHSV(255, 255, 80); 
       
       // now, let's first 20 leds to the top 20 leds,
        leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);     // leds(55, NUM_LEDS - 1) = leds(55 - 1, 0);   leds(NUM_LEDS / 2, NUM_LEDS - 1) = leds(NUM_LEDS / 2 - 1, 0);
-      // leds1(6, 10) = leds1(5, 0);
       FastLED.delay(20);
     }
-   // iA=0;
     fill_solid((&leds[65]), 1, CHSV(255, 255, 80));    
     FastLED.show();
 
@@ -572,8 +590,11 @@ void readCan() {
         if(message.id == 0x651)  //uncomment when you want to filter
              {
                
-               ledCanState = message.data[0];
-               // Serial.print(ledCanState);
+               //for(int i=0;i<message.header.length;i++) 
+                  
+                  ledCanState = message.data[0];
+                
+                                 Serial.print(ledCanState);
              }
            }}
     }
@@ -585,21 +606,25 @@ void loop()
   readCan();
   police();
   epilepsy();
-  
-
-  if (poliisi || epilepsia == false)
-  {
   indicatorLeft();
   indicatorRight();
   Blinkers();
   Breaklights();
   horny();
   frontlights();
-  }
-  if (poliisi || epilepsia == true)
-{
   
-  }    
+ /* if (poliisi && epilepsia == false)
+ {
+  indicatorLeft();
+  indicatorRight();
+  Blinkers();
+  Breaklights();
+  horny();
+  frontlights();
+  } */
+ // if (poliisi || epilepsia == true)
+//{
+// }    
 //-----vilkkujen CAN tiedot----//
 
   if (turnsignalL == true)
@@ -614,7 +639,8 @@ void loop()
     blinkerCanState = 1;
     
     }
-    if (turnsignalR == false && turnsignalL == false){
+    if (turnsignalR == false && turnsignalL == false)
+    {
     blinkerCanState = 0;
     }
 }
