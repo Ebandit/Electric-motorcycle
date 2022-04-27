@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/"/>
+        <file>images/compass.jpg</file>
+        <file>images/compass.png</file>
+        <file>images/kompassi.png</file>
+        <file>images/lol.png</file>
+        <file>images/right.png</file>
+        <file>images/lightindicator.png</file>
+        <file>images/headlight.png</file>
+        <file>images/lightning-in-a-circle.png</file>
+        <file>images/ampere.png</file>
+        <file>images/engine.png</file>
+        <file>images/enginetemp.png</file>
+        <file>images/batterytemp.png</file>
+        <file>images/battery.png</file>
+    </qresource>
+</RCC>

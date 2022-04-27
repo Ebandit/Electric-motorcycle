@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Firstpage.qml</file>
+        <file>Secondpage.qml</file>
+        <file>Thirdpage.qml</file>
+    </qresource>
+</RCC>
